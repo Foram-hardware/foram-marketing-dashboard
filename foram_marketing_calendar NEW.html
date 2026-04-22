@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foram Hardware — Marketing Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #ffffff0f;
+    --accent: #f5a623;
+    --accent2: #e8430a;
+    --gold: #d4a853;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --text: #f0f0f5;
+    --muted: #6b6b80;
+    --done: #22c55e;
+    --notdone: #ef4444;
+    --scheduled: #f5a623;
+    --inprog: #3b82f6;
+    --postponed: #a855f7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1020 50%, #0f1a15 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 80% at 50% -20%, #f5a62320 0%, transparent 70%);
+  }
+  .logo-block {
+    display:flex; flex-direction:column; align-items:center;
+    gap:12px; margin-bottom:20px; position:relative; z-index:1;
+  }
+  .logo-svg { width:80px; height:80px; }
+  .brand-name {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(28px,5vw,48px); letter-spacing:6px;
+    background: linear-gradient(135deg, #f5a623, #e8430a);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    text-align:center;
+  }
+  .brand-sub { font-size:11px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; text-align:center; }
+  .month-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background: #ffffff08; border:1px solid var(--border);
+    padding:6px 16px; border-radius:40px; font-size:12px; letter-spacing:2px;
+    color:var(--accent); text-transform:uppercase; font-weight:600;
+    margin:0 auto; display:block; width:fit-content;
+  }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display:flex; gap:4px; padding:16px 40px;
+    background:var(--surface); border-bottom:1px solid var(--border);
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .nav-tabs::-webkit-scrollbar { display:none; }
+  .tab {
+    padding:8px 20px; border-radius:6px; font-size:13px; font-weight:500;
+    cursor:pointer; white-space:nowrap; border:1px solid transparent;
+    transition:all .2s; color:var(--muted); background:none;
+  }
+  .tab:hover { color:var(--text); background:#ffffff08; }
+  .tab.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
+
+  /* MAIN */
+  .main { padding:32px 40px; max-width:1600px; margin:0 auto; }
+
+  /* ── CALENDAR VIEW ── */
+  .calendar-header {
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;
+  }
+  .section-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:3px; color:var(--accent); }
+  .month-nav { display:flex; align-items:center; gap:12px; }
+  .month-nav button {
+    background:#ffffff0a; border:1px solid var(--border); color:var(--text);
+    width:36px; height:36px; border-radius:8px; cursor:pointer; font-size:16px;
+    transition:all .2s; display:flex; align-items:center; justify-content:center;
+  }
+  .month-nav button:hover { background:var(--accent); color:#000; border-color:var(--accent); }
+  #current-month-label { font-size:18px; font-weight:600; min-width:140px; text-align:center; }
+
+  .week-block { margin-bottom:32px; }
+  .week-label {
+    font-size:10px; letter-spacing:3px; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin-bottom:12px;
+    padding-left:4px; border-left:3px solid var(--accent); padding-left:10px;
+  }
+  .posts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+
+  /* POST CARD */
+  .post-card {
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:16px; cursor:pointer; transition:all .25s; position:relative; overflow:hidden;
+  }
+  .post-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    border-radius:12px 12px 0 0;
+  }
+  .post-card.done::before { background:var(--done); }
+  .post-card.not-done::before { background:var(--notdone); }
+  .post-card.scheduled::before { background:var(--scheduled); }
+  .post-card.in-progress::before { background:var(--inprog); }
+  .post-card.postponed::before { background:var(--postponed); }
+  .post-card:hover { border-color:#ffffff25; transform:translateY(-2px); box-shadow:0 12px 40px #00000060; }
+  .post-card.is-festival { border-color: #f5a62330; }
+
+  .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .date-chip {
+    background:#ffffff08; border-radius:6px; padding:4px 10px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600;
+  }
+  .status-pill {
+    font-size:10px; padding:3px 10px; border-radius:20px; font-weight:700; letter-spacing:.5px;
+    text-transform:uppercase;
+  }
+  .status-pill.done { background:#22c55e20; color:#22c55e; border:1px solid #22c55e40; }
+  .status-pill.not-done { background:#ef444420; color:#ef4444; border:1px solid #ef444440; }
+  .status-pill.scheduled { background:#f5a62320; color:#f5a623; border:1px solid #f5a62340; }
+  .status-pill.in-progress { background:#3b82f620; color:#3b82f6; border:1px solid #3b82f640; }
+  .status-pill.postponed { background:#a855f720; color:#a855f7; border:1px solid #a855f740; }
+
+  .content-type-badge {
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
+    padding:3px 8px; border-radius:4px; margin-bottom:8px;
+    background:#ffffff08; color:var(--muted);
+  }
+  .card-topic { font-size:13px; font-weight:500; line-height:1.5; margin-bottom:8px; color:var(--text); }
+  .card-product { font-size:11px; color:var(--accent); font-weight:600; margin-bottom:6px; }
+  .card-platforms { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
+  .plat-tag {
+    font-size:10px; padding:2px 7px; border-radius:3px; font-weight:600; letter-spacing:.3px;
+  }
+  .plat-tag.instagram { background:#e1306c20; color:#e1306c; }
+  .plat-tag.facebook { background:#1877f220; color:#60a5fa; }
+  .plat-tag.youtube { background:#ff000020; color:#ff6b6b; }
+  .plat-tag.whatsapp { background:#25d36620; color:#25d366; }
+  .card-cta { font-size:11px; color:var(--muted); }
+  .festival-badge {
+    display:inline-flex; align-items:center; gap:4px; font-size:10px;
+    background: linear-gradient(135deg,#f5a62320,#e8430a20); color:var(--gold);
+    border:1px solid #f5a62330; padding:2px 8px; border-radius:4px; margin-bottom:6px; font-weight:600;
+  }
+  .priority-flag {
+    font-size:10px; color:#fbbf24; background:#fbbf2415; border:1px solid #fbbf2430;
+    padding:2px 6px; border-radius:3px; display:inline-block; margin-bottom:6px;
+  }
+
+  /* ── SUMMARY VIEW ── */
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card {
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .stat-card::after {
+    content:''; position:absolute; inset:0; opacity:.04;
+    background: radial-gradient(circle at center,#fff,transparent);
+  }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:52px; line-height:1; color:var(--accent); }
+  .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-top:4px; }
+
+  .donut-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px; }
+  @media(max-width:700px){ .donut-row { grid-template-columns:1fr; } }
+  .chart-card {
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px;
+  }
+  .chart-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--accent); margin-bottom:16px; }
+  .bar-list { display:flex; flex-direction:column; gap:10px; }
+  .bar-item label { font-size:12px; color:var(--muted); margin-bottom:4px; display:flex; justify-content:space-between; }
+  .bar-track { height:8px; background:#ffffff0a; border-radius:4px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.23,1,.32,1); }
+
+  .legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
+  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  /* ── ADD POST MODAL / FORM ── */
+  .fab {
+    position:fixed; bottom:32px; right:32px; z-index:100;
+    width:60px; height:60px; border-radius:50%;
+    background: linear-gradient(135deg,var(--accent),var(--accent2));
+    border:none; color:#000; font-size:28px; cursor:pointer;
+    box-shadow:0 8px 32px #f5a62340; transition:all .2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fab:hover { transform:scale(1.1) rotate(45deg); }
+
+  .modal-overlay {
+    position:fixed; inset:0; background:#000000c0; backdrop-filter:blur(8px);
+    z-index:200; display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    width:100%; max-width:640px; max-height:90vh; overflow-y:auto;
+    padding:32px; position:relative;
+  }
+  .modal-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:var(--accent); margin-bottom:24px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:500px){ .form-grid { grid-template-columns:1fr; } }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-group label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .form-group input, .form-group select, .form-group textarea {
+    background:#ffffff06; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    padding:10px 14px; outline:none; transition:border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color:var(--accent);
+  }
+  .form-group select option { background:#1a1a2e; }
+  .form-group textarea { resize:vertical; min-height:80px; }
+  .platform-checks { display:flex; flex-wrap:wrap; gap:8px; }
+  .plat-check { cursor:pointer; }
+  .plat-check input { display:none; }
+  .plat-check span {
+    display:inline-block; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600;
+    border:1px solid var(--border); background:#ffffff06; transition:all .2s;
+  }
+  .plat-check input:checked + span.instagram { background:#e1306c20; border-color:#e1306c; color:#e1306c; }
+  .plat-check input:checked + span.facebook { background:#1877f220; border-color:#60a5fa; color:#60a5fa; }
+  .plat-check input:checked + span.youtube { background:#ff000020; border-color:#ff6b6b; color:#ff6b6b; }
+  .plat-check input:checked + span.whatsapp { background:#25d36620; border-color:#25d366; color:#25d366; }
+  .btn-row { display:flex; gap:12px; margin-top:24px; justify-content:flex-end; }
+  .btn {
+    padding:10px 24px; border-radius:8px; font-size:14px; font-weight:600;
+    cursor:pointer; border:none; font-family:'DM Sans',sans-serif; transition:all .2s;
+  }
+  .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; }
+  .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+  .btn-ghost:hover { border-color:var(--text); color:var(--text); }
+  .close-btn {
+    position:absolute; top:16px; right:16px; background:none; border:none;
+    color:var(--muted); font-size:20px; cursor:pointer; padding:4px; border-radius:4px;
+  }
+  .close-btn:hover { color:var(--text); }
+
+  /* DETAIL MODAL */
+  .detail-modal { max-width:560px; }
+  .detail-row { display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+  .detail-key { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; min-width:100px; padding-top:2px; font-weight:600; }
+  .detail-val { font-size:14px; color:var(--text); line-height:1.5; }
+  .hashtag-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .hashtag { background:#ffffff08; border:1px solid var(--border); padding:3px 8px; border-radius:4px; font-size:11px; color:var(--accent); font-family:'JetBrains Mono',monospace; }
+  .edit-btn { background:#ffffff08; border:1px solid var(--border); color:var(--text); padding:8px 16px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; }
+  .edit-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* FESTIVAL VIEW */
+  .festival-table { width:100%; border-collapse:collapse; }
+  .festival-table th {
+    text-align:left; padding:10px 14px; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); border-bottom:1px solid var(--border); font-weight:600;
+  }
+  .festival-table td { padding:12px 14px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .festival-table tr:hover td { background:#ffffff04; }
+  .festival-month { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--accent); letter-spacing:2px; padding:20px 14px 8px; }
+
+  /* FILTERS */
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .filter-btn {
+    padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); background:none; color:var(--muted); transition:all .2s;
+  }
+  .filter-btn:hover { color:var(--text); border-color:#ffffff30; }
+  .filter-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+
+  /* SEARCH */
+  .search-wrap { position:relative; margin-bottom:20px; }
+  .search-wrap input {
+    width:100%; background:#ffffff06; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-size:14px; padding:10px 14px 10px 40px; outline:none;
+    font-family:'DM Sans',sans-serif; transition:border-color .2s;
+  }
+  .search-wrap input:focus { border-color:var(--accent); }
+  .search-wrap::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; }
+
+  /* EMPTY */
+  .empty { text-align:center; padding:48px; color:var(--muted); font-size:14px; }
+
+  /* PROGRESS BAR */
+  .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .progress-track { height:6px; background:#ffffff0a; border-radius:3px; margin-bottom:24px; }
+  .progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent2),var(--accent)); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:#ffffff15; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:#ffffff25; }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .animate-in { animation:fadeIn .3s ease forwards; }
+  .post-card { animation:fadeIn .3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-block">
+    <!-- Company Logo (inline SVG representing hardware/fitting brand) -->
+    <svg class="logo-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f5a623"/>
+          <stop offset="100%" stop-color="#e8430a"/>
+        </linearGradient>
+      </defs>
+      <!-- Hexagon background -->
+      <polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#lg1)" opacity="0.15"/>
+      <polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="none" stroke="url(#lg1)" stroke-width="1.5"/>
+      <!-- Hinge/bolt icon -->
+      <rect x="28" y="24" width="24" height="6" rx="3" fill="url(#lg1)"/>
+      <rect x="28" y="37" width="24" height="6" rx="3" fill="url(#lg1)"/>
+      <rect x="28" y="50" width="24" height="6" rx="3" fill="url(#lg1)"/>
+      <circle cx="40" cy="40" r="5" fill="none" stroke="url(#lg1)" stroke-width="2"/>
+      <circle cx="40" cy="40" r="2" fill="url(#lg1)"/>
+    </svg>
+    <div>
+      <div class="brand-name">Foram Hardware</div>
+      <div class="brand-sub">E.S.C. Hardware LLP · Mumbai · Door &amp; Window Fittings</div>
+    </div>
+    <div class="month-badge" id="current-badge">📅 April 2026 — Marketing Command Centre</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="tab active" onclick="showTab('calendar')">📅 Calendar</button>
+  <button class="tab" onclick="showTab('summary')">📊 Summary</button>
+  <button class="tab" onclick="showTab('festivals')">🎉 Festivals</button>
+  <button class="tab" onclick="showTab('template')">📋 Weekly Template</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ═══════════ CALENDAR TAB ═══════════ -->
+  <div id="tab-calendar">
+    <div class="calendar-header">
+      <div>
+        <div class="section-title">Content Calendar</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px;">All scheduled posts · Click any card to view or edit</div>
+      </div>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <span id="current-month-label">April 2026</span>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Search posts, products, topics..." oninput="renderCalendar()">
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('Done',this)">✅ Done</button>
+      <button class="filter-btn" onclick="setFilter('Scheduled',this)">📅 Scheduled</button>
+      <button class="filter-btn" onclick="setFilter('Not Done',this)">❌ Not Done</button>
+      <button class="filter-btn" onclick="setFilter('In Progress',this)">🔄 In Progress</button>
+      <button class="filter-btn" onclick="setFilter('Postponed',this)">⏸️ Postponed</button>
+      <button class="filter-btn" onclick="setFilter('festival',this)">🎉 Festival</button>
+      <button class="filter-btn" onclick="setFilter('priority',this)">⚠️ Priority</button>
+    </div>
+
+    <div id="calendar-container"></div>
+  </div>
+
+  <!-- ═══════════ SUMMARY TAB ═══════════ -->
+  <div id="tab-summary" style="display:none;">
+    <div class="section-title" style="margin-bottom:24px;">Month Summary</div>
+
+    <div id="summary-stats" class="summary-grid"></div>
+
+    <div class="progress-header">
+      <span style="font-size:13px;color:var(--muted);">Overall Completion</span>
+      <span id="pct-label" style="font-size:13px;font-weight:700;color:var(--accent);"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+    <div class="donut-row">
+      <div class="chart-card">
+        <div class="chart-title">Status Breakdown</div>
+        <div class="bar-list" id="status-bars"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Content Type Mix</div>
+        <div class="bar-list" id="type-bars"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Platform Reach</div>
+      <div class="bar-list" id="platform-bars"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FESTIVALS TAB ═══════════ -->
+  <div id="tab-festivals" style="display:none;">
+    <div class="section-title" style="margin-bottom:8px;">Festival &amp; Event Calendar 2026</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">Plan your festival posts in advance. Never miss a greeting.</div>
+    <div id="festival-container"></div>
+  </div>
+
+  <!-- ═══════════ TEMPLATE TAB ═══════════ -->
+  <div id="tab-template" style="display:none;">
+    <div class="section-title" style="margin-bottom:8px;">Weekly Content Template</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">Recurring framework for every week. Rotate products &amp; adjust for festivals.</div>
+    <div id="template-container"></div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()" title="Add New Post">+</button>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('add-modal')">✕</button>
+    <div class="modal-title" id="form-title">New Post</div>
+    <form id="post-form" onsubmit="savePost(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="f-date" required>
+        </div>
+        <div class="form-group">
+          <label>Day</label>
+          <input type="text" id="f-day" placeholder="Mon, Tue…" required>
+        </div>
+        <div class="form-group">
+          <label>Content Type</label>
+          <select id="f-type" required>
+            <option value="">Select…</option>
+            <option>Reel</option>
+            <option>Static Post</option>
+            <option>Carousel</option>
+            <option>Story</option>
+            <option>Story + Static</option>
+            <option>WhatsApp Broadcast</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f-status" required>
+            <option value="">Select…</option>
+            <option>Scheduled</option>
+            <option>Done</option>
+            <option>Not Done</option>
+            <option>In Progress</option>
+            <option>Postponed</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Content Topic / Caption Idea</label>
+          <textarea id="f-topic" rows="3" placeholder="Describe the post idea…" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Product Featured</label>
+          <input type="text" id="f-product" placeholder="e.g. Bearing Hinges">
+        </div>
+        <div class="form-group">
+          <label>CTA / Goal</label>
+          <input type="text" id="f-cta" placeholder="e.g. Enquiry / DM">
+        </div>
+        <div class="form-group full">
+          <label>Platforms</label>
+          <div class="platform-checks">
+            <label class="plat-check"><input type="checkbox" value="Instagram" name="platforms"><span class="instagram">Instagram</span></label>
+            <label class="plat-check"><input type="checkbox" value="Facebook" name="platforms"><span class="facebook">Facebook</span></label>
+            <label class="plat-check"><input type="checkbox" value="YouTube" name="platforms"><span class="youtube">YouTube</span></label>
+            <label class="plat-check"><input type="checkbox" value="WhatsApp" name="platforms"><span class="whatsapp">WhatsApp</span></label>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Hashtags (comma separated)</label>
+          <input type="text" id="f-hashtags" placeholder="#ForamHardware #DoorFittings …">
+        </div>
+        <div class="form-group full">
+          <label>Designer Notes</label>
+          <input type="text" id="f-notes" placeholder="Design instructions, theme, priority flags…">
+        </div>
+        <div class="form-group">
+          <label>Festival Post?</label>
+          <select id="f-festival">
+            <option value="">None</option>
+            <option>Hanuman Jayanti</option>
+            <option>Mahavir Jayanti</option>
+            <option>Easter</option>
+            <option>Baisakhi</option>
+            <option>Ambedkar Jayanti</option>
+            <option>Akshaya Tritiya</option>
+            <option>Earth Day</option>
+            <option>May Day</option>
+            <option>Buddha Purnima</option>
+            <option>Mother's Day</option>
+            <option>Independence Day</option>
+            <option>Diwali</option>
+            <option>Christmas</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Week Label</label>
+          <input type="text" id="f-week" placeholder="WEEK 1 — TITLE">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('add-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-btn-label">Add Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal detail-modal">
+    <button class="close-btn" onclick="closeModal('detail-modal')">✕</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const INITIAL_POSTS = [
+  {id:1,week:"WEEK 1 — NEW BEGINNINGS & FESTIVALS",day:"Wed",date:"2026-04-01",type:"Reel",topic:'Month Opener — "April Product Lineup Preview" | Quick 15-sec montage of all products launching this month',product:"All Products",platforms:["Instagram","YouTube"],cta:"Engagement / Save",hashtags:["#ForamHardware","#DoorFittings","#HardwareIndia","#QualityFittings","#AprilLaunch"],status:"Scheduled",notes:"Use fast-cut transitions, product close-ups",festival:""},
+  {id:2,week:"WEEK 1 — NEW BEGINNINGS & FESTIVALS",day:"Thu",date:"2026-04-02",type:"Story",topic:'🙏 Hanuman Jayanti — "Strength in every fitting" | Festival greeting + brand tie-in',product:"Brand",platforms:["Instagram","WhatsApp"],cta:"Brand Awareness",hashtags:["#HanumanJayanti","#ForamHardware","#FestivalGreeting","#JaiHanuman","#Strength"],status:"Scheduled",notes:"Saffron/orange theme, devotional tone",festival:"Hanuman Jayanti"},
+  {id:3,week:"WEEK 1 — NEW BEGINNINGS & FESTIVALS",day:"Fri",date:"2026-04-03",type:"Static Post",topic:'Product Update 1 — Door & Window Latches | "Small fittings, Big security" | Feature: Brass Round Baby Latch & Concealed Baby Latch',product:"Door & Window Latches",platforms:["Instagram","Facebook"],cta:"Enquiry / DM",hashtags:["#BabyLatch","#DoorLatch","#WindowFittings","#BrassHardware","#ForamFittings"],status:"Scheduled",notes:"⚠️ Q1 gap product — prioritise!",festival:""},
+  {id:4,week:"WEEK 1 — NEW BEGINNINGS & FESTIVALS",day:"Sat",date:"2026-04-05",type:"Carousel",topic:'🐣 Easter Special — "5 Fittings Every Modern Home Needs" | Educational carousel with product photos',product:"Mixed (Top 5 Products)",platforms:["Instagram","Facebook"],cta:"Save / Share",hashtags:["#ModernHome","#HomeFittings","#InteriorHardware","#ForamHardware","#HomeDecor"],status:"Scheduled",notes:"5 slides, clean white background",festival:"Easter"},
+  {id:5,week:"WEEK 2 — PRODUCT DEEP-DIVES",day:"Mon",date:"2026-04-06",type:"Reel",topic:'Product Demo — Bearing Hinge Installation | "How to install a 4-inch Brass Bearing Hinge" | Step-by-step',product:"Bearing Hinges",platforms:["Instagram","YouTube"],cta:"Save / Website Visit",hashtags:["#BearingHinge","#BrassHinge","#DoorHinge","#HardwareInstallation","#ForamHardware"],status:"Scheduled",notes:"⚠️ Q1 gap product — show installation",festival:""},
+  {id:6,week:"WEEK 2 — PRODUCT DEEP-DIVES",day:"Wed",date:"2026-04-08",type:"Static Post",topic:'Product Update 2 — L Hinge | "Precision-crafted L Hinges for perfect door alignment" | Feature: 3-Inch Brass & 4-Inch Z-Black',product:"L Hinge",platforms:["Instagram","Facebook"],cta:"Enquiry / DM",hashtags:["#LHinge","#BrassLHinge","#ZBlackFinish","#DoorHardware","#ForamFittings"],status:"Done",notes:"⚠️ Q1 gap product — feature both finishes",festival:""},
+  {id:7,week:"WEEK 2 — PRODUCT DEEP-DIVES",day:"Fri",date:"2026-04-10",type:"Story",topic:'🙏 Mahavir Jayanti — "Non-violence, Truth, Quality — values we build with" | Festival greeting',product:"Brand",platforms:["Instagram","WhatsApp"],cta:"Brand Awareness",hashtags:["#MahavirJayanti","#Ahimsa","#ForamHardware","#FestivalGreeting","#Peace"],status:"Not Done",notes:"Minimalist design, white & gold",festival:"Mahavir Jayanti"},
+  {id:8,week:"WEEK 2 — PRODUCT DEEP-DIVES",day:"Sat",date:"2026-04-12",type:"Reel",topic:'Customer Testimonial / Dealer Spotlight — "Why dealers trust Foram for bulk orders"',product:"Brand / All Products",platforms:["Instagram","YouTube"],cta:"Trust / Enquiry",hashtags:["#ForamDealers","#TrustedBrand","#HardwareWholesale","#BulkOrders","#MumbaiHardware"],status:"Not Done",notes:"Interview-style or text overlay reel",festival:""},
+  {id:9,week:"WEEK 3 — FESTIVAL PEAK & CABINET FOCUS",day:"Mon",date:"2026-04-13",type:"Carousel",topic:'"Foram Product Catalogue — Hinges Edition" | All hinge types in one carousel: Invisible, Bearing, Railway, L, Cabinet',product:"All Hinges",platforms:["Instagram","Facebook"],cta:"Save / Share / DM",hashtags:["#HingeTypes","#DoorHinges","#InvisibleHinge","#RailwayHinge","#ForamCatalogue"],status:"Scheduled",notes:"6-slide carousel, consistent template",festival:""},
+  {id:10,week:"WEEK 3 — FESTIVAL PEAK & CABINET FOCUS",day:"Tue",date:"2026-04-14",type:"Story + Static",topic:'🌾 Happy Baisakhi & Ambedkar Jayanti! | "Building an equal & prosperous India, one fitting at a time"',product:"Brand",platforms:["Instagram","WhatsApp","Facebook"],cta:"Brand Awareness",hashtags:["#Baisakhi","#AmbedkarJayanti","#HarvestFestival","#ForamHardware","#ProudlyIndian"],status:"Scheduled",notes:"Dual festival — 1 story + 1 static post",festival:"Baisakhi + Ambedkar Jayanti"},
+  {id:11,week:"WEEK 3 — FESTIVAL PEAK & CABINET FOCUS",day:"Thu",date:"2026-04-16",type:"Static Post",topic:'Product Update 3 — Cabinet Hinges | "Smooth, silent, durable — Cabinet Hinges for modular kitchens" | Feature: 4-Inch L & Z types',product:"Cabinet Hinges",platforms:["Instagram","Facebook"],cta:"Enquiry / DM",hashtags:["#CabinetHinge","#ModularKitchen","#KitchenHardware","#ForamFittings","#CabinetFittings"],status:"Scheduled",notes:"⚠️ Q1 gap product — kitchen angle",festival:""},
+  {id:12,week:"WEEK 3 — FESTIVAL PEAK & CABINET FOCUS",day:"Sat",date:"2026-04-19",type:"Reel",topic:'✨ Akshaya Tritiya — "Invest in quality that never diminishes" | Product showcase + festival tie-in | Feature: Invisible Hinges (premium)',product:"Invisible Hinges",platforms:["Instagram","YouTube","WhatsApp"],cta:"Enquiry / Brand",hashtags:["#AkshayaTritiya","#PremiumQuality","#InvisibleHinge","#ForamHardware","#GoodInvestment"],status:"Scheduled",notes:"Gold/premium aesthetic, festival + product",festival:"Akshaya Tritiya"},
+  {id:13,week:"WEEK 4 — SUSTAINABILITY & TRUST",day:"Mon",date:"2026-04-20",type:"Static Post",topic:'Product Update 4 — Railway Hinges | "Heavy-duty Railway Hinges — built for doors that move thousands of times" | Feature: 5-Inch Brass SS',product:"Railway Hinges",platforms:["Instagram","Facebook"],cta:"Enquiry / DM",hashtags:["#RailwayHinge","#BrassHinge","#HeavyDuty","#DoorFittings","#ForamHardware"],status:"Scheduled",notes:"Show weight capacity, durability angle",festival:""},
+  {id:14,week:"WEEK 4 — SUSTAINABILITY & TRUST",day:"Wed",date:"2026-04-22",type:"Carousel",topic:'🌍 Earth Day — "Sustainable Hardware, Lasting Impact" | How Foram\'s brass fittings are durable & eco-friendly',product:"Brand / Brass Products",platforms:["Instagram","Facebook"],cta:"Brand / Save",hashtags:["#EarthDay","#SustainableHardware","#BrassFittings","#EcoFriendly","#ForamGreen"],status:"Scheduled",notes:"Green theme, sustainability messaging",festival:"Earth Day"},
+  {id:15,week:"WEEK 4 — SUSTAINABILITY & TRUST",day:"Fri",date:"2026-04-24",type:"Reel",topic:'Product Comparison — "Tower Bolt: Flush vs Step Zylo vs U-Type — which one for your door?" | Side-by-side demo',product:"Tower Bolts",platforms:["Instagram","YouTube"],cta:"Save / Comment",hashtags:["#TowerBolt","#DoorSecurity","#FlushBolt","#ZyloBolt","#ForamHardware"],status:"Scheduled",notes:"Split-screen comparison, engaging format",festival:""},
+  {id:16,week:"WEEK 4 — SUSTAINABILITY & TRUST",day:"Sat",date:"2026-04-26",type:"WhatsApp Broadcast",topic:'📱 Dealer Price List — April Updated Rates + New Product Additions | PDF catalogue share',product:"All Products",platforms:["WhatsApp"],cta:"Orders / Enquiry",hashtags:[],status:"Scheduled",notes:"B2B focused, include contact number",festival:""},
+  {id:17,week:"WEEK 5 — MONTH-END PUSH",day:"Mon",date:"2026-04-27",type:"Static Post",topic:'Product Update 5 — Mortise Handle | "Elegant Mortise Handles — the first impression of your door" | Premium range',product:"Mortise Handles",platforms:["Instagram","Facebook"],cta:"Enquiry / DM",hashtags:["#MortiseHandle","#DoorHandle","#PremiumHardware","#ElegantDoors","#ForamFittings"],status:"Scheduled",notes:"Lifestyle shot with door setup",festival:""},
+  {id:18,week:"WEEK 5 — MONTH-END PUSH",day:"Wed",date:"2026-04-29",type:"Reel",topic:'Month Recap — "April Highlights at Foram Hardware" | Quick montage of all April posts + BTS',product:"Brand / All Products",platforms:["Instagram","YouTube"],cta:"Follow / Save",hashtags:["#ForamHardware","#MonthRecap","#HardwareBrand","#AprilHighlights","#BehindTheScenes"],status:"Scheduled",notes:"Reuse best clips from month",festival:""},
+  {id:19,week:"WEEK 5 — MONTH-END PUSH",day:"Thu",date:"2026-04-30",type:"Story",topic:'📊 "April by the Numbers" — Posts published, products featured, new enquiries | Transparent brand story',product:"Brand",platforms:["Instagram","WhatsApp"],cta:"Engagement",hashtags:["#ForamHardware","#BrandTransparency","#GrowthStory","#AprilWrap","#HardwareBusiness"],status:"Scheduled",notes:"Use analytics screenshots, keep real",festival:""}
+];
+
+const FESTIVALS = [
+  {date:"2 Apr",festival:"Hanuman Jayanti",type:"Story",tie:"\"Strength in every fitting\" — devotion & quality",product:"Brand",design:"Saffron theme"},
+  {date:"3 Apr",festival:"Good Friday",type:"Story (optional)",tie:"Respectful greeting",product:"Brand",design:"Minimalist"},
+  {date:"10 Apr",festival:"Mahavir Jayanti",type:"Story",tie:"\"Non-violence, Truth, Quality\"",product:"Brand",design:"White & gold"},
+  {date:"14 Apr",festival:"Baisakhi + Ambedkar Jayanti",type:"Static + Story",tie:"\"Building a prosperous India\" — harvest + equality",product:"Brand",design:"Vibrant yellow & blue"},
+  {date:"19 Apr",festival:"Akshaya Tritiya",type:"Reel",tie:"\"Invest in quality that never diminishes\" — premium range",product:"Invisible Hinges",design:"Gold/premium aesthetic"},
+  {date:"22 Apr",festival:"Earth Day",type:"Carousel",tie:"\"Sustainable Hardware\" — brass durability = eco-friendly",product:"Brass Products",design:"Green theme"},
+  {date:"1 May",festival:"May Day / Labour Day",type:"Story",tie:"\"Saluting the hands that build India\" — factory workers",product:"Brand",design:"Documentary style"},
+  {date:"1 May",festival:"Buddha Purnima",type:"Story",tie:"\"Peace, quality, mindfulness\" — brand values",product:"Brand",design:"Serene blue theme"},
+  {date:"11 May",festival:"Mother's Day",type:"Story",tie:"\"The foundation of every home\" — mothers + home hardware",product:"Brand",design:"Warm, family tone"},
+  {date:"21 Jun",festival:"Father's Day",type:"Reel",tie:"\"Dad's toolkit essentials\" — product showcase",product:"Tower Bolts, Tools",design:"Fun, relatable"},
+  {date:"21 Jun",festival:"Intl Yoga Day",type:"Story",tie:"\"Balance in every hinge\" — playful brand tie-in",product:"Brand",design:"Calm, minimal"},
+  {date:"6 Jul",festival:"Eid ul-Adha (approx.)",type:"Story",tie:"Festival greeting — inclusive brand",product:"Brand",design:"Green & gold"},
+  {date:"17 Jul",festival:"Muharram (approx.)",type:"Story",tie:"Respectful acknowledgment",product:"Brand",design:"Sombre, minimal"},
+  {date:"15 Aug",festival:"Independence Day",type:"Reel + Static",tie:"\"Proudly Made for India\" — patriotic product showcase",product:"All Products",design:"Tricolour theme"},
+  {date:"16 Aug",festival:"Raksha Bandhan (approx.)",type:"Story",tie:"\"Bonds that hold strong\" — sibling + hardware tie-in",product:"Brand",design:"Festive, warm"},
+  {date:"5 Sep",festival:"Teacher's Day",type:"Story",tie:"\"Learning never stops\" — knowledge of hardware",product:"Brand",design:"Minimal"},
+  {date:"2 Oct",festival:"Gandhi Jayanti",type:"Static",tie:"\"Made in India, Made to last\" — Swadeshi angle",product:"All Products",design:"Tricolour minimal"},
+  {date:"20 Oct",festival:"Diwali (approx.)",type:"Reel + Static + Story",tie:"\"Light up your home with Foram\" — full campaign",product:"Premium Range",design:"3-day content series"},
+  {date:"5 Nov",festival:"Guru Nanak Jayanti",type:"Story",tie:"Festival greeting",product:"Brand",design:"White & saffron"},
+  {date:"25 Dec",festival:"Christmas",type:"Story",tie:"\"Season's Fittings!\" — playful holiday greeting",product:"Brand",design:"Red & green, fun tone"}
+];
+
+const WEEKLY_TEMPLATE = [
+  {day:"Monday",emoji:"🎬",type:"Reel / Video",theme:"Product Demo or Installation Guide — Show \"how-to\" for that week's featured product",product:"Rotate from plan",platforms:"Instagram Reels, YouTube Shorts",cta:"Save / Website Visit",time:"11:00 AM – 1:00 PM",notes:"Short-form video (15-30 sec). Show hands installing the product."},
+  {day:"Tuesday",emoji:"📋",type:"REST DAY",theme:"Content Creation Day — Shoot & edit upcoming content",product:"—",platforms:"—",cta:"—",time:"—",notes:"Use this day to create content for the rest of the week."},
+  {day:"Wednesday",emoji:"📸",type:"Static Post",theme:"Product Showcase — High-quality product photo with specs, features & price range",product:"Rotate from plan",platforms:"Instagram Feed, Facebook",cta:"Enquiry / DM",time:"12:00 PM – 2:00 PM",notes:"Clean white/lifestyle background. Include key specs in caption."},
+  {day:"Thursday",emoji:"💬",type:"REST DAY",theme:"Engagement Day — Reply to DMs, comments, engage with dealer posts",product:"—",platforms:"—",cta:"—",time:"—",notes:"Engage with followers, respond to enquiries, build community."},
+  {day:"Friday",emoji:"📚",type:"Carousel / Reel",theme:"Educational Content — \"Did you know?\", product comparison, or tips & tricks",product:"Rotate from plan",platforms:"Instagram, YouTube",cta:"Save / Share",time:"11:00 AM – 1:00 PM",notes:"Alternate: Week 1 & 3 = Carousel, Week 2 & 4 = Reel."},
+  {day:"Saturday",emoji:"📱",type:"Story / WhatsApp",theme:"Behind-the-Scenes / Dealer Connect — Warehouse tour, packing process, or WhatsApp catalogue update",product:"Brand / Various",platforms:"Instagram Stories, WhatsApp Business",cta:"Trust / Orders",time:"10:00 AM – 12:00 PM",notes:"Casual, authentic content. Alternate: BTS on Insta, Catalogue on WA."},
+  {day:"Sunday",emoji:"📊",type:"REST DAY",theme:"Planning Day — Review week's analytics, plan next week's content",product:"—",platforms:"—",cta:"—",time:"—",notes:"Check engagement rates, note best-performing content."}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let posts = JSON.parse(localStorage.getItem('foram_posts') || 'null') || INITIAL_POSTS;
+let nextId = posts.reduce((m,p)=>Math.max(m,p.id),0)+1;
+let activeFilter = 'all';
+let editingId = null;
+let currentMonthOffset = 0;
+
+function savePosts(){ localStorage.setItem('foram_posts', JSON.stringify(posts)); }
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function statusClass(s){ return s.toLowerCase().replace(' ','-').replace(/\s/g,'-'); }
+function platClass(p){ return p.toLowerCase().replace(/\s/g,''); }
+
+function getMonthPosts(){
+  const base = new Date(2026,3,1); // April 2026
+  base.setMonth(base.getMonth() + currentMonthOffset);
+  const y = base.getFullYear(), m = base.getMonth();
+  return posts.filter(p=>{
+    const d = new Date(p.date);
+    return d.getFullYear()===y && d.getMonth()===m;
+  });
+}
+
+function getMonthLabel(){
+  const base = new Date(2026,3,1);
+  base.setMonth(base.getMonth() + currentMonthOffset);
+  return base.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+}
+
+// ─── RENDER CALENDAR ─────────────────────────────────────────────────────────
+function renderCalendar(){
+  const container = document.getElementById('calendar-container');
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let filtered = getMonthPosts();
+
+  if(activeFilter==='festival') filtered = filtered.filter(p=>p.festival);
+  else if(activeFilter==='priority') filtered = filtered.filter(p=>p.notes&&p.notes.includes('⚠️'));
+  else if(activeFilter!=='all') filtered = filtered.filter(p=>p.status===activeFilter);
+
+  if(search) filtered = filtered.filter(p=>
+    (p.topic+p.product+p.notes+p.cta).toLowerCase().includes(search)
+  );
+
+  // group by week
+  const weeks = {};
+  filtered.forEach(p=>{
+    const w = p.week||'UNSCHEDULED';
+    if(!weeks[w]) weeks[w]=[];
+    weeks[w].push(p);
+  });
+
+  if(!filtered.length){
+    container.innerHTML='<div class="empty">No posts match this filter.</div>';return;
+  }
+
+  container.innerHTML = Object.entries(weeks).map(([week,wPosts])=>`
+    <div class="week-block animate-in">
+      <div class="week-label">${week}</div>
+      <div class="posts-grid">
+        ${wPosts.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(renderCard).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCard(p){
+  const isPriority = p.notes&&p.notes.includes('⚠️');
+  const sc = statusClass(p.status);
+  const dateObj = new Date(p.date);
+  const dateStr = dateObj.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+
+  return `<div class="post-card ${sc} ${p.festival?'is-festival':''}" onclick="openDetail(${p.id})">
+    <div class="card-top">
+      <div class="date-chip">${p.day} · ${dateStr}</div>
+      <div class="status-pill ${sc}">${p.status}</div>
+    </div>
+    ${p.festival?`<div class="festival-badge">🎉 ${p.festival}</div>`:''}
+    ${isPriority?`<div class="priority-flag">⚠️ Priority</div>`:''}
+    <div class="content-type-badge">${typeEmoji(p.type)} ${p.type}</div>
+    <div class="card-topic">${p.topic.split('|')[0].trim()}</div>
+    <div class="card-product">📦 ${p.product}</div>
+    <div class="card-platforms">
+      ${p.platforms.map(pl=>`<span class="plat-tag ${platClass(pl)}">${pl}</span>`).join('')}
+    </div>
+    <div class="card-cta">🎯 ${p.cta}</div>
+  </div>`;
+}
+
+function typeEmoji(t){
+  if(t==='Reel') return '🎬';
+  if(t==='Static Post') return '📸';
+  if(t==='Carousel') return '📋';
+  if(t.includes('Story')) return '🔆';
+  if(t.includes('WhatsApp')) return '📱';
+  return '📄';
+}
+
+// ─── SUMMARY ─────────────────────────────────────────────────────────────────
+function renderSummary(){
+  const p = getMonthPosts();
+  const total = p.length;
+  const done = p.filter(x=>x.status==='Done').length;
+  const notDone = p.filter(x=>x.status==='Not Done').length;
+  const scheduled = p.filter(x=>x.status==='Scheduled').length;
+  const inProg = p.filter(x=>x.status==='In Progress').length;
+  const postponed = p.filter(x=>x.status==='Postponed').length;
+  const reels = p.filter(x=>x.type==='Reel').length;
+  const statics = p.filter(x=>x.type==='Static Post').length;
+  const carousels = p.filter(x=>x.type==='Carousel').length;
+  const stories = p.filter(x=>x.type.includes('Story')).length;
+  const wa = p.filter(x=>x.type.includes('WhatsApp')).length;
+
+  const pct = total?Math.round((done/total)*100):0;
+  document.getElementById('pct-label').textContent = pct+'% Complete';
+  document.getElementById('progress-fill').style.width = pct+'%';
+
+  document.getElementById('summary-stats').innerHTML = [
+    ['Total Posts',total,'#f5a623'],
+    ['✅ Done',done,'#22c55e'],
+    ['❌ Not Done',notDone,'#ef4444'],
+    ['📅 Scheduled',scheduled,'#f5a623'],
+    ['🎉 Festival Posts',p.filter(x=>x.festival).length,'#a855f7'],
+    ['⚠️ Priority',p.filter(x=>x.notes&&x.notes.includes('⚠️')).length,'#fbbf24'],
+  ].map(([l,n,c])=>`
+    <div class="stat-card">
+      <div class="stat-num" style="color:${c}">${n}</div>
+      <div class="stat-label">${l}</div>
+    </div>
+  `).join('');
+
+  const maxSt = Math.max(done,notDone,scheduled,inProg,postponed)||1;
+  document.getElementById('status-bars').innerHTML = [
+    ['Done',done,'#22c55e'],
+    ['Scheduled',scheduled,'#f5a623'],
+    ['Not Done',notDone,'#ef4444'],
+    ['In Progress',inProg,'#3b82f6'],
+    ['Postponed',postponed,'#a855f7'],
+  ].map(([l,n,c])=>renderBar(l,n,maxSt,c)).join('');
+
+  const maxTp = Math.max(reels,statics,carousels,stories,wa)||1;
+  document.getElementById('type-bars').innerHTML = [
+    ['Reels',reels,'#ff6b6b'],
+    ['Static Posts',statics,'#60a5fa'],
+    ['Carousels',carousels,'#34d399'],
+    ['Stories',stories,'#f472b6'],
+    ['WhatsApp',wa,'#25d366'],
+  ].map(([l,n,c])=>renderBar(l,n,maxTp,c)).join('');
+
+  const platCount = {};
+  p.forEach(x=>x.platforms.forEach(pl=>{ platCount[pl]=(platCount[pl]||0)+1; }));
+  const maxPl = Math.max(...Object.values(platCount))||1;
+  document.getElementById('platform-bars').innerHTML =
+    Object.entries(platCount).sort((a,b)=>b[1]-a[1])
+    .map(([l,n])=>renderBar(l,n,maxPl,'var(--accent)')).join('');
+}
+
+function renderBar(label,val,max,color){
+  const pct = Math.round((val/max)*100);
+  return `<div class="bar-item">
+    <label><span>${label}</span><span>${val}</span></label>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+  </div>`;
+}
+
+// ─── FESTIVALS ────────────────────────────────────────────────────────────────
+function renderFestivals(){
+  const months = {};
+  FESTIVALS.forEach(f=>{
+    const m = f.date.split(' ')[1];
+    if(!months[m]) months[m]=[];
+    months[m].push(f);
+  });
+  const monthOrder = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthNames = {Apr:'April',May:'May',Jun:'June',Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December'};
+
+  document.getElementById('festival-container').innerHTML = monthOrder.filter(m=>months[m]).map(m=>`
+    <div class="festival-month">${monthNames[m]}</div>
+    <div class="chart-card" style="margin-bottom:20px;padding:0;overflow:hidden;">
+      <table class="festival-table">
+        <thead><tr>
+          <th>Date</th><th>Festival</th><th>Content Type</th><th>Brand Tie-In</th><th>Product</th><th>Design Notes</th>
+        </tr></thead>
+        <tbody>
+          ${months[m].map(f=>`<tr>
+            <td><span class="date-chip">${f.date}</span></td>
+            <td><strong>${f.festival}</strong></td>
+            <td><span class="content-type-badge">${f.type}</span></td>
+            <td style="color:var(--muted);font-size:12px;">${f.tie}</td>
+            <td><span style="color:var(--accent);font-size:12px;font-weight:600;">${f.product}</span></td>
+            <td style="color:var(--muted);font-size:12px;">${f.design}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
+}
+
+// ─── TEMPLATE ────────────────────────────────────────────────────────────────
+function renderTemplate(){
+  document.getElementById('template-container').innerHTML = `
+    <div style="display:grid;gap:12px;">
+      ${WEEKLY_TEMPLATE.map(t=>`
+        <div class="chart-card" style="display:grid;grid-template-columns:100px 1fr;gap:16px;align-items:start;">
+          <div style="text-align:center;padding-top:4px;">
+            <div style="font-size:28px;">${t.emoji}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent);margin-top:4px;">${t.day}</div>
+            ${t.type==='REST DAY'?'<div style="font-size:10px;color:var(--muted);margin-top:2px;">REST</div>':''}
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">${t.type}</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5;">${t.theme}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              ${t.time!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:3px 8px;border-radius:4px;color:var(--accent);">⏰ ${t.time}</span>`:''}
+              ${t.cta!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:3px 8px;border-radius:4px;color:var(--muted);">🎯 ${t.cta}</span>`:''}
+              ${t.platforms!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:3px 8px;border-radius:4px;color:var(--muted);">📱 ${t.platforms}</span>`:''}
+            </div>
+            ${t.notes?`<div style="margin-top:8px;font-size:11px;color:var(--muted);font-style:italic;">${t.notes}</div>`:''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
+function openDetail(id){
+  const p = posts.find(x=>x.id===id);
+  if(!p) return;
+  const sc = statusClass(p.status);
+  const dateStr = new Date(p.date).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  document.getElementById('detail-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="content-type-badge" style="margin-bottom:8px;">${typeEmoji(p.type)} ${p.type}</div>
+        <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="status-pill ${sc}">${p.status}</div>
+        <button class="edit-btn" onclick="openEdit(${id})">✏️ Edit</button>
+        <button class="edit-btn" style="border-color:#ef444440;color:#ef4444;" onclick="deletePost(${id})">🗑</button>
+      </div>
+    </div>
+    ${p.festival?`<div class="festival-badge" style="margin-bottom:12px;">🎉 ${p.festival}</div>`:''}
+    <div class="detail-row"><div class="detail-key">Topic</div><div class="detail-val">${p.topic}</div></div>
+    <div class="detail-row"><div class="detail-key">Product</div><div class="detail-val" style="color:var(--accent);font-weight:600;">${p.product}</div></div>
+    <div class="detail-row"><div class="detail-key">Platforms</div><div class="detail-val">
+      <div class="card-platforms">${p.platforms.map(pl=>`<span class="plat-tag ${platClass(pl)}">${pl}</span>`).join('')}</div>
+    </div></div>
+    <div class="detail-row"><div class="detail-key">CTA / Goal</div><div class="detail-val">${p.cta}</div></div>
+    ${p.hashtags.length?`<div class="detail-row"><div class="detail-key">Hashtags</div><div class="detail-val"><div class="hashtag-list">${p.hashtags.map(h=>`<span class="hashtag">${h}</span>`).join('')}</div></div></div>`:''}
+    ${p.notes?`<div class="detail-row"><div class="detail-key">Notes</div><div class="detail-val" style="color:var(--muted);font-style:italic;">${p.notes}</div></div>`:''}
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Quick Status Update</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${['Done','Not Done','Scheduled','In Progress','Postponed'].map(s=>`
+          <button onclick="quickStatus(${id},'${s}')" class="filter-btn ${p.status===s?'active':''}" style="font-size:11px;">${s}</button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  openModal('detail-modal');
+}
+
+function quickStatus(id,status){
+  const p = posts.find(x=>x.id===id);
+  if(p){ p.status=status; savePosts(); openDetail(id); renderCalendar(); renderSummary(); }
+}
+
+// ─── ADD/EDIT ─────────────────────────────────────────────────────────────────
+function openAddModal(){
+  editingId = null;
+  document.getElementById('form-title').textContent='New Post';
+  document.getElementById('save-btn-label').textContent='Add Post';
+  document.getElementById('post-form').reset();
+  openModal('add-modal');
+}
+
+function openEdit(id){
+  const p = posts.find(x=>x.id===id);
+  if(!p) return;
+  editingId = id;
+  document.getElementById('form-title').textContent='Edit Post';
+  document.getElementById('save-btn-label').textContent='Save Changes';
+  closeModal('detail-modal');
+
+  document.getElementById('f-date').value = p.date;
+  document.getElementById('f-day').value = p.day;
+  document.getElementById('f-type').value = p.type;
+  document.getElementById('f-status').value = p.status;
+  document.getElementById('f-topic').value = p.topic;
+  document.getElementById('f-product').value = p.product;
+  document.getElementById('f-cta').value = p.cta;
+  document.getElementById('f-hashtags').value = p.hashtags.join(', ');
+  document.getElementById('f-notes').value = p.notes;
+  document.getElementById('f-festival').value = p.festival||'';
+  document.getElementById('f-week').value = p.week||'';
+
+  document.querySelectorAll('input[name="platforms"]').forEach(cb=>{
+    cb.checked = p.platforms.includes(cb.value);
+  });
+  openModal('add-modal');
+}
+
+function savePost(e){
+  e.preventDefault();
+  const platforms = [...document.querySelectorAll('input[name="platforms"]:checked')].map(c=>c.value);
+  const dateVal = document.getElementById('f-date').value;
+  const d = new Date(dateVal);
+  const dayName = d.toLocaleDateString('en-IN',{weekday:'short'});
+
+  const post = {
+    id: editingId||nextId++,
+    week: document.getElementById('f-week').value || guessWeek(dateVal),
+    day: document.getElementById('f-day').value||dayName,
+    date: dateVal,
+    type: document.getElementById('f-type').value,
+    topic: document.getElementById('f-topic').value,
+    product: document.getElementById('f-product').value,
+    platforms,
+    cta: document.getElementById('f-cta').value,
+    hashtags: document.getElementById('f-hashtags').value.split(',').map(h=>h.trim()).filter(Boolean),
+    status: document.getElementById('f-status').value,
+    notes: document.getElementById('f-notes').value,
+    festival: document.getElementById('f-festival').value
+  };
+
+  if(editingId){ const i=posts.findIndex(p=>p.id===editingId); if(i>-1) posts[i]=post; }
+  else posts.push(post);
+
+  savePosts(); closeModal('add-modal'); renderCalendar(); renderSummary();
+}
+
+function guessWeek(dateStr){
+  const d = new Date(dateStr);
+  const dom = d.getDate();
+  if(dom<=5) return 'WEEK 1';
+  if(dom<=12) return 'WEEK 2';
+  if(dom<=19) return 'WEEK 3';
+  if(dom<=26) return 'WEEK 4';
+  return 'WEEK 5';
+}
+
+function deletePost(id){
+  if(!confirm('Delete this post?')) return;
+  posts = posts.filter(p=>p.id!==id);
+  savePosts(); closeModal('detail-modal'); renderCalendar(); renderSummary();
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(name){
+  ['calendar','summary','festivals','template'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((b,i)=>{
+    b.classList.toggle('active',['calendar','summary','festivals','template'][i]===name);
+  });
+  if(name==='summary') renderSummary();
+  if(name==='festivals') renderFestivals();
+  if(name==='template') renderTemplate();
+  if(name==='calendar') renderCalendar();
+}
+
+// ─── FILTERS & MONTH NAV ──────────────────────────────────────────────────────
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCalendar();
+}
+
+function changeMonth(d){
+  currentMonthOffset+=d;
+  document.getElementById('current-month-label').textContent = getMonthLabel();
+  document.getElementById('current-badge').textContent = '📅 '+getMonthLabel()+' — Marketing Command Centre';
+  renderCalendar();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderCalendar();
+renderSummary();
+</script>
+const supabaseUrl = 'https://hpvdbshqsofmlltprfaf.supabase.co/rest/v1/'; 
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdmRic2hxc29mbWxsdHByZmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4Njk5MDAsImV4cCI6MjA5MjQ0NTkwMH0.0dBwtDIiOmBPdP9yBakB6LhbCkezMKMcIfzR1VyWl6E';
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+</body>
+</html>
