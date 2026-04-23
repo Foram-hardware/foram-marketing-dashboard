@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foram Hardware — Marketing Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--surface:#111118;--card:#16161f;--border:#ffffff0f;--accent:#f5a623;--accent2:#e8430a;--text:#f0f0f5;--muted:#6b6b80;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+/* BANNER */
+.banner{position:relative;min-height:210px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#banner-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0f0f1a,#1a1020 50%,#0f1a15);background-size:cover;background-position:center;transition:all .4s;}
+.b-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,#00000050,#000000a0);z-index:1;}
+.b-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 50% -10%,#f5a62328,transparent 65%);z-index:1;pointer-events:none;}
+.b-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 20px;}
+.b-edit{position:absolute;top:12px;right:14px;z-index:3;background:#ffffff15;backdrop-filter:blur(6px);border:1px solid #ffffff20;padding:5px 12px;border-radius:20px;font-size:11px;color:#ffffffcc;cursor:pointer;transition:all .2s;}
+.b-edit:hover{background:#ffffff28;}
+/* LOGO */
+.logo-zone{width:88px;height:88px;border-radius:50%;border:2px dashed #f5a62350;background:#ffffff08;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:all .25s;}
+.logo-zone:hover{border-color:var(--accent);background:#f5a62312;}
+.logo-zone img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+.logo-zone.has img{display:block;}
+.logo-zone.has .lph{display:none;}
+.lph{display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;}
+.lph span{font-size:22px;}.lph small{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.logo-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:1;}
+.lrm{position:absolute;bottom:1px;right:1px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;border:2px solid #0a0a0f;font-size:9px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3;font-weight:700;}
+.logo-zone.has .lrm{display:flex;}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,52px);letter-spacing:6px;background:linear-gradient(135deg,#f5a623,#e8430a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+.brand-sub{font-size:11px;letter-spacing:3px;color:#ffffffaa;text-transform:uppercase;text-align:center;}
+.abadge{background:#ffffff12;border:1px solid #ffffff20;padding:4px 14px;border-radius:30px;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;font-weight:600;}
+/* MONTH BAR */
+.mbar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 28px;display:flex;align-items:center;gap:7px;overflow-x:auto;scrollbar-width:none;}
+.mbar::-webkit-scrollbar{display:none;}
+.mpill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.mpill:hover{color:var(--text);border-color:#ffffff30;}
+.mpill.on{background:var(--accent);color:#000;border-color:var(--accent);}
+.mpill.add{border-style:dashed;color:var(--accent);border-color:#f5a62340;}
+.mpill.add:hover{background:#f5a62312;border-color:var(--accent);}
+/* TABS */
+.tabs{display:flex;gap:3px;padding:9px 28px;background:#0d0d14;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:7px 18px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .2s;color:var(--muted);background:none;font-family:'DM Sans',sans-serif;}
+.tab:hover{color:var(--text);background:#ffffff08;}
+.tab.on{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+/* PAGES */
+.pages{position:relative;}
+.page{display:none;padding:26px 28px;max-width:1600px;margin:0 auto;}
+.page.on{display:block;animation:sIn .32s cubic-bezier(.25,.8,.25,1) both;}
+@keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes sOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-20px)}}
+/* LOADER */
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ldg{color:var(--muted);font-size:13px;padding:48px;text-align:center;}
+/* ERROR BOX */
+.err-box{background:#ef444415;border:1px solid #ef444440;border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#ef4444;}
+/* TOAST */
+.toast{position:fixed;bottom:88px;right:24px;background:#1e1e2e;border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;z-index:999;display:none;box-shadow:0 8px 32px #00000090;}
+.toast.on{display:block;animation:sIn .2s ease;}
+/* SEARCH/FILTER */
+.sbox{position:relative;margin-bottom:13px;}
+.sbox input{width:100%;background:#ffffff06;border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:14px;padding:8px 12px 8px 34px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.sbox input:focus{border-color:var(--accent);}
+.sbox::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;}
+.fbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.fb{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif;}
+.fb:hover{color:var(--text);border-color:#ffffff30;}
+.fb.on{background:var(--accent);color:#000;border-color:var(--accent);}
+/* CARDS */
+.wblk{margin-bottom:24px;}
+.wlbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:9px;border-left:3px solid var(--accent);padding-left:10px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(278px,1fr));gap:10px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+.card.done::before{background:#22c55e;}.card.not-done::before{background:#ef4444;}
+.card.scheduled::before{background:#f5a623;}.card.in-progress::before{background:#3b82f6;}
+.card.postponed::before{background:#a855f7;}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 36px #00000060;border-color:#ffffff20;}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.dchip{background:#ffffff08;border-radius:5px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
+.sp{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.sp.done{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;}
+.sp.not-done{background:#ef444420;color:#ef4444;border:1px solid #ef444440;}
+.sp.scheduled{background:#f5a62320;color:#f5a623;border:1px solid #f5a62340;}
+.sp.in-progress{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;}
+.sp.postponed{background:#a855f720;color:#a855f7;border:1px solid #a855f740;}
+.tbg{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-bottom:6px;background:#ffffff08;color:var(--muted);}
+.ctopic{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:6px;}
+.cprod{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:5px;}
+.ptags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px;}
+.pt{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600;}
+.pt.instagram{background:#e1306c20;color:#e1306c;}
+.pt.facebook{background:#1877f220;color:#60a5fa;}
+.pt.youtube{background:#ff000020;color:#ff6b6b;}
+.pt.whatsapp{background:#25d36620;color:#25d366;}
+.ccta{font-size:11px;color:var(--muted);}
+.fbdg{font-size:10px;background:#f5a62315;color:#d4a853;border:1px solid #f5a62328;padding:2px 7px;border-radius:4px;margin-bottom:5px;font-weight:600;display:inline-block;}
+.pfl{font-size:10px;color:#fbbf24;background:#fbbf2410;border:1px solid #fbbf2430;padding:2px 6px;border-radius:3px;display:inline-block;margin-bottom:5px;}
+/* SUMMARY */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:11px;margin-bottom:20px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;color:var(--accent);}
+.slbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.drow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:640px){.drow{grid-template-columns:1fr;}}
+.ccrd{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.ctit{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);margin-bottom:11px;}
+.blist{display:flex;flex-direction:column;gap:8px;}
+.bi label{font-size:12px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between;}
+.btr{height:7px;background:#ffffff0a;border-radius:4px;overflow:hidden;}
+.bfl{height:100%;border-radius:4px;transition:width .9s cubic-bezier(.23,1,.32,1);}
+.phdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.ptr{height:5px;background:#ffffff0a;border-radius:3px;margin-bottom:18px;}
+.pfl{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .9s cubic-bezier(.23,1,.32,1);}
+/* FESTIVAL */
+.ftbl{width:100%;border-collapse:collapse;}
+.ftbl th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600;}
+.ftbl td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.ftbl tr:hover td{background:#ffffff04;}
+.fmhd{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:2px;padding:14px 12px 5px;}
+/* TEMPLATE */
+.tcrd{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;display:grid;grid-template-columns:78px 1fr;gap:12px;margin-bottom:8px;}
+/* FAB */
+.fab{position:fixed;bottom:26px;right:26px;z-index:100;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#000;font-size:22px;cursor:pointer;box-shadow:0 8px 28px #f5a62340;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.fab:hover{transform:scale(1.1) rotate(45deg);}
+/* MODAL */
+.mo{position:fixed;inset:0;background:#000000c0;backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.mo.on{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:22px;position:relative;}
+.msm{max-width:400px;}
+.mtit{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--accent);margin-bottom:15px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+@media(max-width:480px){.fg{grid-template-columns:1fr;}}
+.fg2{grid-column:1/-1;}
+.fg label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{width:100%;background:#ffffff06;border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 11px;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);}
+.fg select option{background:#1a1a2e;}
+.fg textarea{resize:vertical;min-height:66px;}
+.pchks{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.pchk input{display:none;}
+.pchk span{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);background:#ffffff06;transition:all .2s;cursor:pointer;}
+.pchk input:checked+span.instagram{background:#e1306c20;border-color:#e1306c;color:#e1306c;}
+.pchk input:checked+span.facebook{background:#1877f220;border-color:#60a5fa;color:#60a5fa;}
+.pchk input:checked+span.youtube{background:#ff000020;border-color:#ff6b6b;color:#ff6b6b;}
+.pchk input:checked+span.whatsapp{background:#25d36620;border-color:#25d366;color:#25d366;}
+.brow{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+.btn{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btnp{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;}
+.btnp:hover{opacity:.9;}
+.btng{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btng:hover{border-color:var(--text);color:var(--text);}
+.btnd{background:transparent;border:1px solid #ef444440;color:#ef4444;}
+.xbtn{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;}
+.xbtn:hover{color:var(--text);}
+/* DETAIL */
+.dr{display:flex;gap:10px;margin-bottom:9px;}
+.dk{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;min-width:78px;padding-top:2px;font-weight:600;flex-shrink:0;}
+.dv{font-size:13px;color:var(--text);line-height:1.5;}
+.htag{background:#ffffff08;border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+.htags{display:flex;flex-wrap:wrap;gap:4px;}
+.ebtn{background:#ffffff08;border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.ebtn:hover{border-color:var(--accent);color:var(--accent);}
+.empty{text-align:center;padding:52px 20px;color:var(--muted);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:#ffffff18;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div id="banner-bg"></div>
+  <div class="b-overlay"></div><div class="b-glow"></div>
+  <div class="b-content">
+    <div class="logo-zone" id="lzone">
+      <input type="file" accept="image/*" id="linp" onchange="upLogo(event)">
+      <img id="limg" src="" alt="Logo">
+      <div class="lph"><span>🏢</span><small>Logo</small></div>
+      <button class="lrm" onclick="rmLogo(event)">✕</button>
+    </div>
+    <div class="brand-name">Foram Hardware</div>
+    <div class="brand-sub">E.S.C. Hardware LLP · Mumbai · Door &amp; Window Fittings</div>
+    <div class="abadge" id="abadge">📅 Loading…</div>
+  </div>
+  <div class="b-edit" onclick="document.getElementById('binp').click()">🖼 Change Banner</div>
+  <input type="file" accept="image/*" id="binp" style="display:none" onchange="upBanner(event)">
+</div>
+
+<div class="mbar" id="mbar"><span class="ldg"><span class="spin"></span>Loading…</span></div>
+
+<div class="tabs">
+  <button class="tab on" onclick="goTab('cal',this)">📅 Calendar</button>
+  <button class="tab" onclick="goTab('sum',this)">📊 Summary</button>
+  <button class="tab" onclick="goTab('fest',this)">🎉 Festivals</button>
+  <button class="tab" onclick="goTab('tmpl',this)">📋 Template</button>
+</div>
+
+<div class="pages">
+  <div class="page on" id="page-cal">
+    <div style="margin-bottom:14px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent)" id="cal-ttl">Content Calendar</div>
+      <div style="font-size:12px;color:var(--muted)">Click any card to view · edit · update status</div>
+    </div>
+    <div class="sbox"><input type="text" id="srch" placeholder="Search posts, products…" oninput="renderCal()"></div>
+    <div class="fbar">
+      <button class="fb on" onclick="setF('all',this)">All</button>
+      <button class="fb" onclick="setF('Done',this)">✅ Done</button>
+      <button class="fb" onclick="setF('Scheduled',this)">📅 Scheduled</button>
+      <button class="fb" onclick="setF('Not Done',this)">❌ Not Done</button>
+      <button class="fb" onclick="setF('In Progress',this)">🔄 In Progress</button>
+      <button class="fb" onclick="setF('Postponed',this)">⏸ Postponed</button>
+      <button class="fb" onclick="setF('festival',this)">🎉 Festival</button>
+      <button class="fb" onclick="setF('priority',this)">⚠️ Priority</button>
+    </div>
+    <div id="cal-body"><div class="ldg"><span class="spin"></span>Loading posts…</div></div>
+  </div>
+
+  <div class="page" id="page-sum">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:16px" id="sum-ttl">Month Summary</div>
+    <div class="sgrid" id="sgrid"></div>
+    <div class="phdr"><span style="font-size:12px;color:var(--muted)">Completion</span><span id="pct" style="font-size:13px;font-weight:700;color:var(--accent)"></span></div>
+    <div class="ptr"><div class="pfl" id="pfill" style="width:0%"></div></div>
+    <div class="drow">
+      <div class="ccrd"><div class="ctit">Status Breakdown</div><div class="blist" id="sbar"></div></div>
+      <div class="ccrd"><div class="ctit">Content Type Mix</div><div class="blist" id="tbar"></div></div>
+    </div>
+    <div class="ccrd"><div class="ctit">Platform Reach</div><div class="blist" id="pbar"></div></div>
+  </div>
+
+  <div class="page" id="page-fest">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:4px">Festival Calendar 2026</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Plan festival posts ahead. Never miss a greeting.</div>
+    <div id="fest-body"></div>
+  </div>
+
+  <div class="page" id="page-tmpl">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:4px">Weekly Content Template</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Your recurring weekly framework. Rotate products & adjust for festivals.</div>
+    <div id="tmpl-body"></div>
+  </div>
+</div>
+
+<button class="fab" onclick="openAdd()">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- ADD/EDIT -->
+<div class="mo" id="mo-add">
+  <div class="modal">
+    <button class="xbtn" onclick="closeMo('mo-add')">✕</button>
+    <div class="mtit" id="ftit">New Post</div>
+    <form id="pform" onsubmit="savePost(event)">
+      <div class="fg">
+        <div><label>Date</label><input type="date" id="f-date" required></div>
+        <div><label>Day</label><input type="text" id="f-day" placeholder="Mon, Tue…"></div>
+        <div><label>Content Type</label>
+          <select id="f-type" required>
+            <option value="">Select…</option>
+            <option>Reel</option><option>Static Post</option><option>Carousel</option>
+            <option>Story</option><option>Story + Static</option><option>WhatsApp Broadcast</option>
+          </select>
+        </div>
+        <div><label>Status</label>
+          <select id="f-status" required>
+            <option value="">Select…</option>
+            <option>Scheduled</option><option>Done</option><option>Not Done</option>
+            <option>In Progress</option><option>Postponed</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Topic / Caption Idea</label><textarea id="f-topic" rows="3" placeholder="Post idea…" required></textarea></div>
+        <div><label>Product Featured</label><input type="text" id="f-prod" placeholder="e.g. Bearing Hinges"></div>
+        <div><label>CTA / Goal</label><input type="text" id="f-cta" placeholder="e.g. Enquiry / DM"></div>
+        <div class="fg2"><label>Platforms</label>
+          <div class="pchks">
+            <label class="pchk"><input type="checkbox" value="Instagram" name="pl"><span class="instagram">Instagram</span></label>
+            <label class="pchk"><input type="checkbox" value="Facebook" name="pl"><span class="facebook">Facebook</span></label>
+            <label class="pchk"><input type="checkbox" value="YouTube" name="pl"><span class="youtube">YouTube</span></label>
+            <label class="pchk"><input type="checkbox" value="WhatsApp" name="pl"><span class="whatsapp">WhatsApp</span></label>
+          </div>
+        </div>
+        <div class="fg2"><label>Hashtags (comma separated)</label><input type="text" id="f-tags" placeholder="#ForamHardware #DoorFittings …"></div>
+        <div class="fg2"><label>Designer Notes</label><input type="text" id="f-notes" placeholder="Design instructions, priority flags…"></div>
+        <div><label>Festival</label>
+          <select id="f-fest">
+            <option value="">None</option>
+            <option>Hanuman Jayanti</option><option>Mahavir Jayanti</option><option>Easter</option>
+            <option>Baisakhi</option><option>Ambedkar Jayanti</option><option>Akshaya Tritiya</option>
+            <option>Earth Day</option><option>May Day</option><option>Buddha Purnima</option>
+            <option>Mother's Day</option><option>Independence Day</option><option>Diwali</option>
+            <option>Christmas</option><option>Raksha Bandhan</option><option>Guru Nanak Jayanti</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div><label>Week Label</label><input type="text" id="f-week" placeholder="WEEK 1 — TITLE"></div>
+      </div>
+      <div class="brow">
+        <button type="button" class="btn btng" onclick="closeMo('mo-add')">Cancel</button>
+        <button type="submit" class="btn btnp" id="slbl">Add Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="mo" id="mo-det">
+  <div class="modal" style="max-width:510px">
+    <button class="xbtn" onclick="closeMo('mo-det')">✕</button>
+    <div id="det"></div>
+  </div>
+</div>
+
+<!-- NEW MONTH -->
+<div class="mo" id="mo-nm">
+  <div class="modal msm">
+    <button class="xbtn" onclick="closeMo('mo-nm')">✕</button>
+    <div class="mtit">New Month</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Each month gets its own calendar. Old months stay saved.</p>
+    <div class="fg">
+      <div><label>Month</label>
+        <select id="nm-mo">
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+      </div>
+      <div><label>Year</label><input type="number" id="nm-yr" value="2026" min="2024" max="2032"></div>
+      <div class="fg2"><label>Theme / Goal (optional)</label><input type="text" id="nm-theme" placeholder="e.g. Festival Season, Product Launch…"></div>
+    </div>
+    <div class="brow">
+      <button class="btn btng" onclick="closeMo('mo-nm')">Cancel</button>
+      <button class="btn btnp" onclick="createMonth()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ SUPABASE CONFIG ══════════════════════════════════════════════════════════
+const URL  = 'https://hghcsccymqkzqboqjtiv.supabase.co/rest/v1';
+const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhnaGNzY2N5bXFrenFib3FqdGl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MTY1MjgsImV4cCI6MjA5MjQ5MjUyOH0.RnLffXsFQcx18UdF7S1bbX1rtHmmy3_heuPhsQ9Of2Y';
+const H    = {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY};
+const HRET = {...H,'Prefer':'return=representation'};
+
+async function q(path, opts={}) {
+  const r = await fetch(URL+'/'+path, {headers:H, ...opts});
+  if (!r.ok) throw new Error(await r.text());
+  return r.status===204 ? null : r.json();
+}
+
+// ══ STATE ════════════════════════════════════════════════════════════════════
+let months=[], activeKey='', posts=[], filt='all', editId=null, curTab='cal';
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ══ BOOT ════════════════════════════════════════════════════════════════════
+async function boot() {
+  try {
+    months = await q('months?order=key.asc');
+    if (!months.length) throw new Error('No months');
+    activeKey = months[months.length-1].key;
+    renderMbar();
+    await loadPosts();
+    loadSettings();
+  } catch(e) {
+    document.getElementById('mbar').innerHTML =
+      `<div class="err-box" style="margin:0">❌ Cannot connect to database. Check your internet connection and reload.<br><small style="opacity:.7">${e.message}</small></div>`;
+    document.getElementById('cal-body').innerHTML =
+      `<div class="err-box">Could not load posts. Make sure you are online.</div>`;
+    console.error('Boot error:', e);
+  }
+}
+
+async function loadPosts() {
+  document.getElementById('cal-body').innerHTML = '<div class="ldg"><span class="spin"></span>Loading posts…</div>';
+  try {
+    posts = await q(`posts?month_key=eq.${activeKey}&order=date.asc`);
+    const m = months.find(x=>x.key===activeKey);
+    document.getElementById('abadge').textContent = '📅 ' + (m?.label||activeKey);
+    document.getElementById('cal-ttl').textContent = (m?.label||activeKey) + ' — Content Calendar';
+    document.getElementById('sum-ttl').textContent = (m?.label||activeKey) + ' — Summary';
+    renderCal();
+  } catch(e) {
+    document.getElementById('cal-body').innerHTML = `<div class="err-box">Failed to load posts: ${e.message}</div>`;
+  }
+}
+
+// ══ MONTH BAR ════════════════════════════════════════════════════════════════
+function renderMbar() {
+  document.getElementById('mbar').innerHTML =
+    months.map(m=>`<button class="mpill ${m.key===activeKey?'on':''}" onclick="switchM('${m.key}')">${m.label}</button>`).join('')
+    + `<button class="mpill add" onclick="openMo('mo-nm')">+ New Month</button>`;
+}
+
+async function switchM(key) {
+  activeKey=key; filt='all';
+  document.querySelectorAll('.fb').forEach((b,i)=>b.classList.toggle('on',i===0));
+  document.getElementById('srch').value='';
+  renderMbar();
+  await loadPosts();
+}
+
+// ══ CALENDAR ════════════════════════════════════════════════════════════════
+function renderCal() {
+  const s = document.getElementById('srch').value.toLowerCase();
+  let fp = [...posts];
+  if (filt==='festival') fp=fp.filter(p=>p.festival);
+  else if (filt==='priority') fp=fp.filter(p=>p.notes?.includes('⚠️'));
+  else if (filt!=='all') fp=fp.filter(p=>p.status===filt);
+  if (s) fp=fp.filter(p=>(p.topic+p.product+p.notes+p.cta).toLowerCase().includes(s));
+
+  if (!fp.length) {
+    document.getElementById('cal-body').innerHTML = posts.length
+      ? '<div class="empty">🔍 No posts match this filter</div>'
+      : '<div class="empty"><div style="font-size:36px;margin-bottom:12px">🗓️</div><div style="font-size:15px;color:var(--text);margin-bottom:6px">No posts yet for this month</div>Hit the + button to add your first post!</div>';
+    return;
+  }
+  const wks={};
+  fp.forEach(p=>{const w=p.week_label||'UNSCHEDULED';if(!wks[w])wks[w]=[];wks[w].push(p);});
+  document.getElementById('cal-body').innerHTML=Object.entries(wks).map(([w,wp])=>`
+    <div class="wblk">
+      <div class="wlbl">${w}</div>
+      <div class="grid">${wp.map(mkCard).join('')}</div>
+    </div>`).join('');
+}
+
+function mkCard(p) {
+  const sc=sC(p.status), ds=new Date(p.date+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+  return `<div class="card ${sc} ${p.festival?'fcard':''}" onclick="openDet(${p.id})">
+    <div class="ct"><div class="dchip">${p.day||''} · ${ds}</div><div class="sp ${sc}">${p.status}</div></div>
+    ${p.festival?`<div class="fbdg">🎉 ${p.festival}</div>`:''}
+    ${p.notes?.includes('⚠️')?`<div class="pfl">⚠️ Priority</div>`:''}
+    <div class="tbg">${tE(p.type)} ${p.type}</div>
+    <div class="ctopic">${p.topic.split('|')[0].trim()}</div>
+    <div class="cprod">📦 ${p.product}</div>
+    <div class="ptags">${(p.platforms||[]).map(pl=>`<span class="pt ${pl.toLowerCase()}">${pl}</span>`).join('')}</div>
+    <div class="ccta">🎯 ${p.cta}</div>
+  </div>`;
+}
+
+// ══ SUMMARY ════════════════════════════════════════════════════════════════
+function renderSum() {
+  const p=posts, t=p.length;
+  if(!t){document.getElementById('sgrid').innerHTML='<div style="color:var(--muted);font-size:13px">No posts yet.</div>';return;}
+  const done=p.filter(x=>x.status==='Done').length, nd=p.filter(x=>x.status==='Not Done').length;
+  const sch=p.filter(x=>x.status==='Scheduled').length, inp=p.filter(x=>x.status==='In Progress').length;
+  const pp=p.filter(x=>x.status==='Postponed').length, pct=Math.round(done/t*100);
+  document.getElementById('pct').textContent=pct+'% Complete';
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('sgrid').innerHTML=[
+    ['Total Posts',t,'#f5a623'],['✅ Done',done,'#22c55e'],['❌ Not Done',nd,'#ef4444'],
+    ['📅 Scheduled',sch,'#f5a623'],['🎉 Festival',p.filter(x=>x.festival).length,'#a855f7'],
+    ['⚠️ Priority',p.filter(x=>x.notes?.includes('⚠️')).length,'#fbbf24']
+  ].map(([l,n,c])=>`<div class="scard"><div class="snum" style="color:${c}">${n}</div><div class="slbl">${l}</div></div>`).join('');
+  const mx1=Math.max(done,nd,sch,inp,pp)||1;
+  document.getElementById('sbar').innerHTML=[['Done',done,'#22c55e'],['Scheduled',sch,'#f5a623'],['Not Done',nd,'#ef4444'],['In Progress',inp,'#3b82f6'],['Postponed',pp,'#a855f7']].map(([l,n,c])=>mkBar(l,n,mx1,c)).join('');
+  const ty={};
+  p.forEach(x=>{const k=x.type?.includes('Story')?'Story':x.type; ty[k]=(ty[k]||0)+1;});
+  const mx2=Math.max(...Object.values(ty))||1;
+  document.getElementById('tbar').innerHTML=Object.entries(ty).map(([l,n],i)=>mkBar(l,n,mx2,['#ff6b6b','#60a5fa','#34d399','#f472b6','#25d366','#a78bfa'][i%6])).join('');
+  const pc={};
+  p.forEach(x=>(x.platforms||[]).forEach(pl=>{pc[pl]=(pc[pl]||0)+1;}));
+  const mx3=Math.max(...Object.values(pc))||1;
+  document.getElementById('pbar').innerHTML=Object.entries(pc).sort((a,b)=>b[1]-a[1]).map(([l,n])=>mkBar(l,n,mx3,'var(--accent)')).join('');
+}
+function mkBar(l,v,mx,c){return `<div class="bi"><label><span>${l}</span><span>${v}</span></label><div class="btr"><div class="bfl" style="width:${Math.round(v/mx*100)}%;background:${c}"></div></div></div>`;}
+
+// ══ FESTIVALS ════════════════════════════════════════════════════════════════
+const FESTS=[
+  {d:'2 Apr',f:'Hanuman Jayanti',t:'Story',tie:'"Strength in every fitting"',p:'Brand',ds:'Saffron theme'},
+  {d:'3 Apr',f:'Good Friday',t:'Story (opt.)',tie:'Respectful greeting',p:'Brand',ds:'Minimalist'},
+  {d:'10 Apr',f:'Mahavir Jayanti',t:'Story',tie:'"Non-violence, Truth, Quality"',p:'Brand',ds:'White & gold'},
+  {d:'14 Apr',f:'Baisakhi + Ambedkar Jayanti',t:'Static + Story',tie:'"Building a prosperous India"',p:'Brand',ds:'Yellow & blue'},
+  {d:'19 Apr',f:'Akshaya Tritiya',t:'Reel',tie:'"Invest in quality that never diminishes"',p:'Invisible Hinges',ds:'Gold/premium'},
+  {d:'22 Apr',f:'Earth Day',t:'Carousel',tie:'"Sustainable Hardware"',p:'Brass Products',ds:'Green theme'},
+  {d:'1 May',f:'May Day',t:'Story',tie:'"Saluting hands that build India"',p:'Brand',ds:'Documentary'},
+  {d:'1 May',f:'Buddha Purnima',t:'Story',tie:'"Peace, quality, mindfulness"',p:'Brand',ds:'Serene blue'},
+  {d:'11 May',f:"Mother's Day",t:'Story',tie:'"The foundation of every home"',p:'Brand',ds:'Warm, family'},
+  {d:'21 Jun',f:"Father's Day",t:'Reel',tie:'"Dad\'s toolkit essentials"',p:'Tower Bolts',ds:'Fun, relatable'},
+  {d:'15 Aug',f:'Independence Day',t:'Reel + Static',tie:'"Proudly Made for India"',p:'All Products',ds:'Tricolour'},
+  {d:'20 Oct',f:'Diwali',t:'Reel + Static + Story',tie:'"Light up your home with Foram"',p:'Premium Range',ds:'3-day campaign'},
+  {d:'25 Dec',f:'Christmas',t:'Story',tie:'"Season\'s Fittings!"',p:'Brand',ds:'Red & green'}
+];
+function renderFest() {
+  const byM={};
+  FESTS.forEach(f=>{const m=f.d.split(' ')[1];if(!byM[m])byM[m]=[];byM[m].push(f);});
+  const ord=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const nm={Apr:'April',May:'May',Jun:'June',Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December'};
+  document.getElementById('fest-body').innerHTML=ord.filter(m=>byM[m]).map(m=>`
+    <div class="fmhd">${nm[m]}</div>
+    <div class="ccrd" style="padding:0;overflow:hidden;margin-bottom:14px">
+      <table class="ftbl"><thead><tr><th>Date</th><th>Festival</th><th>Type</th><th>Brand Tie-In</th><th>Product</th><th>Design</th></tr></thead>
+      <tbody>${byM[m].map(f=>`<tr>
+        <td><span class="dchip">${f.d}</span></td><td><strong>${f.f}</strong></td>
+        <td><span class="tbg" style="margin:0">${f.t}</span></td>
+        <td style="color:var(--muted)">${f.tie}</td>
+        <td style="color:var(--accent);font-weight:600">${f.p}</td>
+        <td style="color:var(--muted)">${f.ds}</td>
+      </tr>`).join('')}</tbody></table>
+    </div>`).join('');
+}
+
+// ══ TEMPLATE ════════════════════════════════════════════════════════════════
+const TMPL=[
+  {d:'Monday',e:'🎬',t:'Reel / Video',th:'Product Demo or Installation Guide',pl:'Instagram Reels, YouTube Shorts',c:'Save / Website Visit',tm:'11 AM – 1 PM',n:'15-30 sec. Show hands installing product.'},
+  {d:'Tuesday',e:'📋',t:'REST DAY',th:'Content Creation — Shoot & edit upcoming content',pl:'—',c:'—',tm:'—',n:'Shoot and edit content for rest of week.'},
+  {d:'Wednesday',e:'📸',t:'Static Post',th:'Product Showcase — High-quality photo with specs & price',pl:'Instagram Feed, Facebook',c:'Enquiry / DM',tm:'12 PM – 2 PM',n:'Clean background. Key specs in caption.'},
+  {d:'Thursday',e:'💬',t:'REST DAY',th:'Engagement Day — Reply to DMs, comments, dealer posts',pl:'—',c:'—',tm:'—',n:'Engage with followers, respond to enquiries.'},
+  {d:'Friday',e:'📚',t:'Carousel / Reel',th:'Educational — "Did you know?", comparison, tips & tricks',pl:'Instagram, YouTube',c:'Save / Share',tm:'11 AM – 1 PM',n:'Wk 1&3=Carousel. Wk 2&4=Reel.'},
+  {d:'Saturday',e:'📱',t:'Story / WhatsApp',th:'Behind-the-Scenes / Dealer Connect / Catalogue',pl:'Instagram Stories, WhatsApp Business',c:'Trust / Orders',tm:'10 AM – 12 PM',n:'Casual, authentic.'},
+  {d:'Sunday',e:'📊',t:'REST DAY',th:'Planning Day — Review analytics, plan next week',pl:'—',c:'—',tm:'—',n:'Check engagement, note best content.'}
+];
+function renderTmpl() {
+  document.getElementById('tmpl-body').innerHTML=TMPL.map(t=>`
+    <div class="tcrd">
+      <div style="text-align:center;padding-top:3px">
+        <div style="font-size:22px">${t.e}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--accent);margin-top:3px">${t.d}</div>
+        ${t.t==='REST DAY'?'<div style="font-size:9px;color:var(--muted);letter-spacing:1px">REST</div>':''}
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">${t.t}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:7px;line-height:1.5">${t.th}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${t.tm!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:2px 7px;border-radius:4px;color:var(--accent)">⏰ ${t.tm}</span>`:''}
+          ${t.c!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:2px 7px;border-radius:4px;color:var(--muted)">🎯 ${t.c}</span>`:''}
+          ${t.pl!=='—'?`<span style="font-size:11px;background:#ffffff08;padding:2px 7px;border-radius:4px;color:var(--muted)">📱 ${t.pl}</span>`:''}
+        </div>
+        <div style="margin-top:5px;font-size:11px;color:var(--muted);font-style:italic">${t.n}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══ DETAIL ════════════════════════════════════════════════════════════════════
+function openDet(id) {
+  const p=posts.find(x=>x.id===id); if(!p) return;
+  const sc=sC(p.status), ds=new Date(p.date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('det').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px;flex-wrap:wrap;gap:8px">
+      <div><div class="tbg" style="margin-bottom:4px">${tE(p.type)} ${p.type}</div><div style="font-size:11px;color:var(--muted)">${ds}</div></div>
+      <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+        <div class="sp ${sc}">${p.status}</div>
+        <button class="ebtn" onclick="openEdit(${id})">✏️ Edit</button>
+        <button class="ebtn" style="border-color:#ef444440;color:#ef4444" onclick="delPost(${id})">🗑</button>
+      </div>
+    </div>
+    ${p.festival?`<div class="fbdg" style="margin-bottom:8px">🎉 ${p.festival}</div>`:''}
+    <div class="dr"><div class="dk">Topic</div><div class="dv">${p.topic}</div></div>
+    <div class="dr"><div class="dk">Product</div><div class="dv" style="color:var(--accent);font-weight:600">${p.product}</div></div>
+    <div class="dr"><div class="dk">Platforms</div><div class="dv"><div class="ptags">${(p.platforms||[]).map(pl=>`<span class="pt ${pl.toLowerCase()}">${pl}</span>`).join('')}</div></div></div>
+    <div class="dr"><div class="dk">CTA</div><div class="dv">${p.cta}</div></div>
+    ${p.hashtags?.length?`<div class="dr"><div class="dk">Hashtags</div><div class="dv"><div class="htags">${p.hashtags.map(h=>`<span class="htag">${h}</span>`).join('')}</div></div></div>`:''}
+    ${p.notes?`<div class="dr"><div class="dk">Notes</div><div class="dv" style="color:var(--muted);font-style:italic">${p.notes}</div></div>`:''}
+    <div style="margin-top:13px;border-top:1px solid var(--border);padding-top:11px">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:7px;letter-spacing:1px;text-transform:uppercase">Quick Status</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${['Done','Not Done','Scheduled','In Progress','Postponed'].map(s=>`<button onclick="qStat(${id},'${s}')" class="fb ${p.status===s?'on':''}" style="font-size:11px">${s}</button>`).join('')}
+      </div>
+    </div>`;
+  openMo('mo-det');
+}
+
+async function qStat(id, status) {
+  try {
+    await q(`posts?id=eq.${id}`, {method:'PATCH', body:JSON.stringify({status})});
+    const p=posts.find(x=>x.id===id); if(p) p.status=status;
+    openDet(id); renderCal();
+    toast('✅ Status updated');
+  } catch(e){ toast('❌ Update failed'); }
+}
+
+// ══ ADD / EDIT ════════════════════════════════════════════════════════════════
+function openAdd() {
+  editId=null;
+  document.getElementById('ftit').textContent='New Post';
+  document.getElementById('slbl').textContent='Add Post';
+  document.getElementById('pform').reset();
+  const [y,m]=activeKey.split('-');
+  document.getElementById('f-date').value=`${y}-${m}-01`;
+  openMo('mo-add');
+}
+
+function openEdit(id) {
+  const p=posts.find(x=>x.id===id); if(!p) return;
+  editId=id;
+  document.getElementById('ftit').textContent='Edit Post';
+  document.getElementById('slbl').textContent='Save Changes';
+  closeMo('mo-det');
+  document.getElementById('f-date').value=p.date;
+  document.getElementById('f-day').value=p.day||'';
+  document.getElementById('f-type').value=p.type;
+  document.getElementById('f-status').value=p.status;
+  document.getElementById('f-topic').value=p.topic;
+  document.getElementById('f-prod').value=p.product;
+  document.getElementById('f-cta').value=p.cta;
+  document.getElementById('f-tags').value=(p.hashtags||[]).join(', ');
+  document.getElementById('f-notes').value=p.notes||'';
+  document.getElementById('f-fest').value=p.festival||'';
+  document.getElementById('f-week').value=p.week_label||'';
+  document.querySelectorAll('input[name="pl"]').forEach(cb=>cb.checked=(p.platforms||[]).includes(cb.value));
+  openMo('mo-add');
+}
+
+async function savePost(e) {
+  e.preventDefault();
+  const platforms=[...document.querySelectorAll('input[name="pl"]:checked')].map(c=>c.value);
+  const dv=document.getElementById('f-date').value;
+  const payload={
+    month_key:activeKey,
+    week_label:document.getElementById('f-week').value||gWeek(dv),
+    day:document.getElementById('f-day').value||DN[new Date(dv+'T00:00:00').getDay()],
+    date:dv, type:document.getElementById('f-type').value,
+    topic:document.getElementById('f-topic').value,
+    product:document.getElementById('f-prod').value, platforms,
+    cta:document.getElementById('f-cta').value,
+    hashtags:document.getElementById('f-tags').value.split(',').map(h=>h.trim()).filter(Boolean),
+    status:document.getElementById('f-status').value,
+    notes:document.getElementById('f-notes').value,
+    festival:document.getElementById('f-fest').value
+  };
+  try {
+    if (editId) {
+      await q(`posts?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(payload)});
+      const i=posts.findIndex(x=>x.id===editId); if(i>-1) posts[i]={...posts[i],...payload};
+      toast('✅ Post updated');
+    } else {
+      const res=await q('posts?select=*',{method:'POST',headers:HRET,body:JSON.stringify(payload)});
+      posts.push(res[0]);
+      toast('✅ Post added');
+    }
+    closeMo('mo-add'); renderCal();
+    if(curTab==='sum') renderSum();
+  } catch(e){ toast('❌ Save failed: '+e.message); console.error(e); }
+}
+
+async function delPost(id) {
+  if(!confirm('Delete this post?')) return;
+  try {
+    await q(`posts?id=eq.${id}`,{method:'DELETE'});
+    posts=posts.filter(p=>p.id!==id);
+    closeMo('mo-det'); renderCal(); toast('🗑 Deleted');
+  } catch(e){ toast('❌ Delete failed'); }
+}
+
+// ══ NEW MONTH ════════════════════════════════════════════════════════════════
+async function createMonth() {
+  const mo=parseInt(document.getElementById('nm-mo').value);
+  const yr=parseInt(document.getElementById('nm-yr').value);
+  const theme=document.getElementById('nm-theme').value.trim();
+  const key=`${yr}-${String(mo).padStart(2,'0')}`;
+  if(months.find(m=>m.key===key)){activeKey=key;renderMbar();await loadPosts();closeMo('mo-nm');return;}
+  const label=MN[mo-1]+' '+yr;
+  try {
+    await q('months',{method:'POST',body:JSON.stringify({key,label,theme})});
+    months.push({key,label,theme}); months.sort((a,b)=>a.key.localeCompare(b.key));
+    activeKey=key; renderMbar(); await loadPosts(); closeMo('mo-nm');
+    toast('🗓️ '+label+' created');
+  } catch(e){ toast('❌ Failed: '+e.message); }
+}
+
+// ══ SETTINGS ════════════════════════════════════════════════════════════════
+async function loadSettings() {
+  try {
+    const s=await q('settings?select=key,value');
+    s.forEach(x=>{
+      if(x.key==='logo'&&x.value){document.getElementById('limg').src=x.value;document.getElementById('lzone').classList.add('has');}
+      if(x.key==='banner'&&x.value){const bg=document.getElementById('banner-bg');bg.style.backgroundImage=`url(${x.value})`;bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';}
+    });
+  } catch(e){}
+}
+async function saveSetting(key,value){
+  try{await q(`settings?key=eq.${key}`,{method:'PATCH',body:JSON.stringify({value})});}catch(e){}
+}
+function upLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{document.getElementById('limg').src=ev.target.result;document.getElementById('lzone').classList.add('has');await saveSetting('logo',ev.target.result);toast('🏢 Logo saved');};r.readAsDataURL(f);}
+function rmLogo(e){e.stopPropagation();e.preventDefault();document.getElementById('limg').src='';document.getElementById('lzone').classList.remove('has');document.getElementById('linp').value='';saveSetting('logo',null);}
+function upBanner(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const bg=document.getElementById('banner-bg');bg.style.backgroundImage=`url(${ev.target.result})`;bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';await saveSetting('banner',ev.target.result);toast('🖼 Banner saved');};r.readAsDataURL(f);}
+
+// ══ TABS ════════════════════════════════════════════════════════════════════
+function goTab(name,btn){
+  if(name===curTab) return;
+  const old=document.getElementById('page-'+curTab);
+  old.style.animation='sOut .2s cubic-bezier(.25,.8,.25,1) both';
+  setTimeout(()=>{old.classList.remove('on');old.style.animation='';},200);
+  const nxt=document.getElementById('page-'+name);
+  nxt.classList.add('on');
+  nxt.style.animation='sIn .3s cubic-bezier(.25,.8,.25,1) both';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  curTab=name;
+  if(name==='sum') renderSum();
+  if(name==='fest') renderFest();
+  if(name==='tmpl') renderTmpl();
+}
+
+// ══ MODALS ════════════════════════════════════════════════════════════════════
+function openMo(id){document.getElementById(id).classList.add('on');}
+function closeMo(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+
+// ══ HELPERS ══════════════════════════════════════════════════════════════════
+function setF(f,btn){filt=f;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCal();}
+function sC(s){return s?.toLowerCase().replace(/\s/g,'-')||'scheduled';}
+function tE(t){return t==='Reel'?'🎬':t==='Static Post'?'📸':t==='Carousel'?'📋':t?.includes('Story')?'🔆':t?.includes('WhatsApp')?'📱':'📄';}
+function gWeek(ds){const d=new Date(ds+'T00:00:00').getDate();return d<=7?'WEEK 1':d<=14?'WEEK 2':d<=21?'WEEK 3':d<=28?'WEEK 4':'WEEK 5';}
+let tTimer;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tTimer);tTimer=setTimeout(()=>t.classList.remove('on'),2800);}
+
+// ══ GO ════════════════════════════════════════════════════════════════════════
+boot();
+</script>
+</body>
+</html>
